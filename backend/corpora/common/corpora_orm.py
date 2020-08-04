@@ -198,8 +198,8 @@ class DbProject(Base):
 
     # Relationships
     user = relationship("DbUser", uselist=False, back_populates="projects")
-    links = relationship("DbProjectLink", back_populates="project", cascade="all, delete-orphan")
-    datasets = relationship("DbDataset", back_populates="project", cascade="all, delete-orphan")
+    links = relationship("DbProjectLink", back_populates="project")
+    datasets = relationship("DbDataset", back_populates="project")
 
 
 class DbProjectLink(Base):
@@ -260,12 +260,10 @@ class DbDataset(Base):
 
     # Relationships
     project = relationship("DbProject", uselist=False, back_populates="datasets")
-    artifacts = relationship("DbDatasetArtifact", back_populates="dataset", cascade="all, delete-orphan")
-    deployment_directories = relationship(
-        "DbDeploymentDirectory", back_populates="dataset", cascade="all, delete-orphan"
-    )
+    artifacts = relationship("DbDatasetArtifact", back_populates="dataset")
+    deployment_directories = relationship("DbDeploymentDirectory", back_populates="dataset")
     contributors = relationship(
-        "DbContributor", secondary=lambda: DbDatasetContributor().__table__, back_populates="datasets",
+        "DbContributor", secondary=lambda: DbDatasetContributor().__table__, back_populates="datasets"
     )
 
     # Composite FK
