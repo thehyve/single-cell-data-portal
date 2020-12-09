@@ -7,8 +7,8 @@ sys.path.insert(0, pkg_root)  # noqa
 
 from upload_failures.upload import delete_many_from_s3, update_dataset_processing_status_to_failed
 
-
 app = Chalice(app_name="upload_failures")
+
 
 
 @app.lambda_function()

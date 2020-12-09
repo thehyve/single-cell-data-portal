@@ -17,7 +17,6 @@ except ImportError:
 def delete_many_from_s3(bucket_name, dataset_uuid) -> None:
     """
     This deletes everything with a specific prefix from the given bucket
-
     """
     s3 = boto3.resource("s3")
     bucket = s3.Bucket(bucket_name)
