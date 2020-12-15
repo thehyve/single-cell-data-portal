@@ -15,7 +15,6 @@ try:
     from ..common.corpora_orm import DatasetArtifactFileType, DatasetArtifactType
     from ..common.utils import dropbox
     from ..common.utils.db_utils import db_session
-    from .download import download
 
 except ImportError:
     # We're in the container
@@ -44,6 +43,17 @@ def check_env():
             missing.append(env_var)
     if missing:
         raise EnvironmentError(f"Missing environment variables: {missing}")
+
+
+def cancel_upload(tracker, dataset_uuid):
+    tracker.stop_downloader.set()
+    tracker.stop_updater.set()
+
+    # set db to cancelled
+    # delete from s3
+    # exit
+
+    print("cancelling the upload")
 
 
 def create_artifacts(h5ad_filename, seurat_filename, loom_filename):
