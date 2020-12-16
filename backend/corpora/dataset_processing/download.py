@@ -4,11 +4,13 @@ import requests
 import os
 import sys
 
+
 try:
     from ..common.corpora_orm import DbDatasetProcessingStatus, UploadStatus
     from ..common.entities import Dataset
     from ..common.utils.db_utils import db_session_manager
     from ..common.utils.math_utils import MB
+    from ..lambdas.upload_failures.upload import delete_many_from_s3
 # This is necessary for importing within the upload-failures lambda
 except ValueError:
     pkg_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "chalicelib"))  # noqa
@@ -37,6 +39,31 @@ class ProgressTracker:
     def update(self, progress):
         with self.progress_lock:
             self._progress += progress
+
+    def cancel(self):
+        self.stop_downloader.set()
+        self.stop_updater.set()
+
+
+def cancel_upload():
+    dataset_uuid = os.environ["DATASET_ID"]
+    print(f"cancelling the upload for {dataset_uuid}")
+
+    # set db to cancelled
+    status = {
+        DbDatasetProcessingStatus.upload_progress: 0,
+        DbDatasetProcessingStatus.upload_status: UploadStatus.CANCELED,
+        DbDatasetProcessingStatus.upload_message: "Cancelled by user",
+    }
+
+    dataset = Dataset.get(dataset_uuid)
+    processing_status_updater(dataset.processing_status.id, status)
+    # delete from s3
+    delete_many_from_s3(os.environ["ARTIFACT_BUCKET"], dataset_uuid)
+    delete_many_from_s3(os.environ["CELLXGENE_BUCKET"], dataset_uuid)
+
+    # exit
+    sys.exit(1)
 
 
 def downloader(url: str, local_path: str, tracker: ProgressTracker, chunk_size: int):
@@ -83,6 +110,11 @@ def updater(processing_status_uuid: str, tracker: ProgressTracker, frequency: fl
     """
 
     def _update():
+        with db_session_manager(commit=True) as db:
+            curr_status = db.get(DbDatasetProcessingStatus, processing_status_uuid)
+            if curr_status.upload_status is UploadStatus.CANCEL_PENDING:
+                cancel_upload()
+                tracker.cancel()
         progress = tracker.progress()
         if progress > 1:
             tracker.stop_downloader.set()
@@ -140,6 +172,7 @@ def download(
         kwargs=dict(processing_status_uuid=status_uuid, tracker=progress_tracker, frequency=update_frequency),
     )
     progress_thread.start()
+
     download_thread = threading.Thread(
         target=downloader, kwargs=dict(url=url, local_path=local_path, tracker=progress_tracker, chunk_size=chunk_size)
     )

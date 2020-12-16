@@ -10,11 +10,16 @@ import boto3
 import numpy
 import scanpy
 
+from backend.corpora.lambdas.upload_failures.upload import delete_many_from_s3
+
 try:
     from ..common.entities.dataset import Dataset
-    from ..common.corpora_orm import DatasetArtifactFileType, DatasetArtifactType
+    from ..common.corpora_orm import DatasetArtifactFileType, DatasetArtifactType, UploadStatus, \
+        DbDatasetProcessingStatus
     from ..common.utils import dropbox
     from ..common.utils.db_utils import db_session
+    from .download import download, processing_status_updater
+
 
 except ImportError:
     # We're in the container
@@ -23,7 +28,7 @@ except ImportError:
     from common.corpora_orm import DatasetArtifactFileType, DatasetArtifactType
     from common.utils import dropbox
     from common.utils.db_utils import db_session
-    from .download import download
+    from corpora.data_processing.download import download, processing_status_updater
 
 # This is unfortunate, but this information doesn't appear to live anywhere
 # accessible to the uploader
@@ -43,17 +48,6 @@ def check_env():
             missing.append(env_var)
     if missing:
         raise EnvironmentError(f"Missing environment variables: {missing}")
-
-
-def cancel_upload(tracker, dataset_uuid):
-    tracker.stop_downloader.set()
-    tracker.stop_updater.set()
-
-    # set db to cancelled
-    # delete from s3
-    # exit
-
-    print("cancelling the upload")
 
 
 def create_artifacts(h5ad_filename, seurat_filename, loom_filename):
