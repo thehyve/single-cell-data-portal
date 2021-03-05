@@ -25,8 +25,8 @@ container-unittest:
 		-m unittest discover --start-directory tests/unit/backend --top-level-directory . --verbose;
 
 .PHONY: functional-test
-functional-test: local-functional-test
-	# Keeping old target name for reverse comatibility
+functional-test:
+	python3 -m unittest discover --start-directory tests/functional --top-level-directory . --verbose
 
 .PHONY: container-functionaltest
 container-functionaltest:
