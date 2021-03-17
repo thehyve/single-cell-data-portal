@@ -59,7 +59,7 @@ class TransformingBase(object):
         remove_attr = remove_attr if remove_attr else []
 
         # Populate result with columns.
-        for attr, column in self.__mapper__.c.items():
+        for attr, column in self._mapping.items():
             if column.key in remove_attr:
                 continue
             if remove_none:
