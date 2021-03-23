@@ -29,3 +29,7 @@ revision. A user must be the owner to revise a public collection.
    How do we match up the genesets and datasets when replacing the public dataset?
    What is the difference between a private collection and a revision?
    
+1. Use a running change log to track the difference between public and revision. Play the changes on to public 
+when change the the revision to be public.
+   
+1. 
