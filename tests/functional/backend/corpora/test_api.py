@@ -160,7 +160,7 @@ class TestApi(unittest.TestCase):
             if self.deployment_stage == "prod":
                 self.skipTest("Do not make test collections public in prod")
             res = requests.delete(f"{self.api}/dp/v1/collections/{collection_uuid}", headers=headers)
-            self.assertEqual(res.status_code, requests.codes.not_allowed)
+            self.assertEqual(res.status_code, requests.codes.method_not_allowed)
 
     def test_delete_private_collection(self):
         # create collection
@@ -293,4 +293,4 @@ class TestApi(unittest.TestCase):
 
             # Check that the dataset is gone
             res = requests.get(f"{self.api}/dp/v1/datasets/{dataset_uuid}/status", headers=headers)
-            self.assertEqual(res.status_code, requests.codes.forbidden)
+            self.assertEqual(res.status_code, requests.codes.method_not_allowed)
