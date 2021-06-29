@@ -57,5 +57,4 @@ class TestDatasetProcessing(CorporaTestCaseUsingMockAWS):
         dataset = self.generate_dataset(
             self.session, collection_id="test_collection_id", collection_visibility=CollectionVisibility.PUBLIC.name
         )
-        self.bucket
         process.process(dataset.id, url, self.corpora_config.bucket_name, self.corpora_config.bucket_name)

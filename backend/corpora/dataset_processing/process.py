@@ -110,6 +110,8 @@ Once all conversion are compelete, the conversion status for each file will be e
     conversion_anndata_status = ConversionStatus.FAILED
 }
 """
+import tempfile
+
 import json
 
 import logging
@@ -466,23 +468,20 @@ def log_batch_environment():
 
 
 def process(dataset_id, dropbox_url, cellxgene_bucket, artifact_bucket):
-    update_db(dataset_id, processing_status=dict(processing_status=ProcessingStatus.PENDING))
-    local_filename = download_from_dropbox_url(
-        dataset_id,
-        dropbox_url,
-        "local.h5ad",
-    )
+    with tempfile.TemporaryDirectory() as temp_dir_name:
+        update_db(dataset_id, processing_status=dict(processing_status=ProcessingStatus.PENDING))
+        local_filename = download_from_dropbox_url(dataset_id, dropbox_url, os.path.join(temp_dir_name, "local.h5ad"))
 
-    validate_h5ad_file(dataset_id, local_filename)
-    process_cxg(local_filename, dataset_id, cellxgene_bucket)
+        validate_h5ad_file(dataset_id, local_filename)
+        process_cxg(local_filename, dataset_id, cellxgene_bucket)
 
-    # Process metadata
-    metadata = extract_metadata(local_filename)
-    update_db(dataset_id, metadata)
+        # Process metadata
+        metadata = extract_metadata(local_filename)
+        update_db(dataset_id, metadata)
 
-    # create artifacts
-    create_artifacts(local_filename, dataset_id, artifact_bucket)
-    update_db(dataset_id, processing_status=dict(processing_status=ProcessingStatus.SUCCESS))
+        # create artifacts
+        create_artifacts(local_filename, dataset_id, artifact_bucket)
+        update_db(dataset_id, processing_status=dict(processing_status=ProcessingStatus.SUCCESS))
 
 
 def main():
