@@ -103,6 +103,7 @@ if __name__ == "__main__":
 
         # check if the dataframe has been started
         if os.path.isfile('cellxgene_df.csv'):
+            print('dataframe already started')
             df = pd.read_csv('cellxgene_df.csv')
             datasets = df['dataset_id'].unique().tolist()
             modified_dt = os.path.getmtime('cellxgene_df.csv')
