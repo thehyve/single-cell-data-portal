@@ -29,5 +29,5 @@ jobs:
           role-duration-seconds: 900
       - name: Run dataframe creation
         run: |
-          python3 create_overall_dataframe.py
+          python3 scripts/create_overall_dataframe.py
     
