@@ -101,51 +101,38 @@ if __name__ == "__main__":
         dataset_id = input_df['dataset_id'].iloc[i]
         updated_dt = input_df['updated_at'].iloc[i]
 
-        # check if the dataframe has been started
-        if os.path.isfile('cellxgene_df.csv'):
-            print('dataframe already started')
-            df = pd.read_csv('cellxgene_df.csv')
-            datasets = df['dataset_id'].unique().tolist()
-            modified_dt = os.path.getmtime('cellxgene_df.csv')
-            modified_dt = datetime.datetime.fromtimestamp(modified_dt)
+        df = pd.read_csv('cellxgene_df.csv')
+        datasets = df['dataset_id'].unique().tolist()
+        modified_dt = os.path.getmtime('cellxgene_df.csv')
+        modified_dt = datetime.datetime.fromtimestamp(modified_dt)
 
-            # check if the dataset is already included or was modified after the date of the dataframe
-            if (dataset_id not in datasets) | (updated_dt > modified_dt):
-                download_file_from_s3(file)
-        
-                output = process_file(dataset_id)
-                print('processed file')
-
-                if 'collection_id' in df.columns.tolist():
-                    output = translation.merge(output, how = 'right', on = 'dataset_id')
-
-                # if dataset has not been added
-                if dataset_id not in datasets:
-                    combined = df.append(output).reset_index(drop = True)
-                    print('Added new dataset {}'.format(dataset_id))
-                # if dataset was modified
-                elif updated_dt > modified_dt:
-                    temp = df[df['dataset_id'] != dataset_id]
-                    combined = temp.append(output).reset_index(drop = True)
-                    print('Updated {} dataset'.format(dataset_id))
-                combined.to_csv('cellxgene_df.csv', index = False)
-
-                os.remove('dataset.h5ad')
-                count += 1 
-                print('saved dataframe to file')
-            else:
-                print('{} is already included in the dataframe'.format(dataset_id))
-        else:
+        # check if the dataset is already included or was modified after the date of the dataframe
+        if (dataset_id not in datasets) | (updated_dt > modified_dt):
             download_file_from_s3(file)
         
             output = process_file(dataset_id)
             print('processed file')
 
-            output.to_csv('cellxgene_df.csv', index = False)
+            if 'collection_id' in df.columns.tolist():
+                output = translation.merge(output, how = 'right', on = 'dataset_id')
+
+            # if dataset has not been added
+            if dataset_id not in datasets:
+                combined = df.append(output).reset_index(drop = True)
+                print('Added new dataset {}'.format(dataset_id))
+            # if dataset was modified
+            elif updated_dt > modified_dt:
+                temp = df[df['dataset_id'] != dataset_id]
+                combined = temp.append(output).reset_index(drop = True)
+                print('Updated {} dataset'.format(dataset_id))
+            combined.to_csv('cellxgene_df.csv', index = False)
 
             os.remove('dataset.h5ad')
             count += 1 
             print('saved dataframe to file')
+        else:
+            print('{} is already included in the dataframe'.format(dataset_id))
+
         print('Files: {}'.format(count))
 
     # limit to only datasets still on the platform
