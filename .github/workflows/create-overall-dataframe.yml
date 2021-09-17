@@ -1,9 +1,9 @@
 name: 'Create overall dataframe'
 
-#on:
-#  push:
-#    branches:
-#      - ainfeld
+on:
+  push:
+    branches:
+      - ainfeld
   #schedule: 
   #  - cron: "0 0 * * 1"
 
@@ -29,5 +29,5 @@ jobs:
           role-duration-seconds: 900
       - name: Run dataframe creation
         run: |
-          python3 analytics/create_overall_dataframe.py
+          python3 analytics/download_data_logs.py
     
