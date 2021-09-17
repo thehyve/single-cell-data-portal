@@ -28,7 +28,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_PROD_ROLE_TO_ASSUME }}
           role-duration-seconds: 900
       - name: Run dataframe creation
-        uses: actions/upload-artifact@v2
         run: |
           python3 analytics/download_data_logs.py
+        - name: Upload results 
+          uses: actions/upload-artifact@v2
+          with: 
+            name: download data
+            path: download_data.csv
+        
     
