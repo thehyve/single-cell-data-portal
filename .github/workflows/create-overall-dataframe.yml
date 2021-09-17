@@ -8,7 +8,7 @@ on:
   #  - cron: "0 0 * * 1"
 
 jobs:
-  create-overall-dataframe:
+  extract download data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -28,6 +28,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_PROD_ROLE_TO_ASSUME }}
           role-duration-seconds: 900
       - name: Run dataframe creation
+        uses: actions/upload-artifact@v2
         run: |
           python3 analytics/download_data_logs.py
     
