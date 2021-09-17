@@ -30,10 +30,6 @@ jobs:
       - name: Run dataframe creation
         run: |
           python3 analytics/download_data_logs.py | tee download_data.csv
-        - name: Upload results 
-          uses: actions/upload-artifact@v2
-          with: 
-            name: download data
-            path: download_data.csv
+
         
     
