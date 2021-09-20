@@ -27,3 +27,6 @@ jobs:
           aws-region: us-west-2
           role-to-assume: ${{ secrets.AWS_PROD_ROLE_TO_ASSUME }}
           role-duration-seconds: 900
+      - name: Run download data script
+        run: |
+          python3 analytics/download_data_logs.py
