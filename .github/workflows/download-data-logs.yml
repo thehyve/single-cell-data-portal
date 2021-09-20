@@ -29,4 +29,4 @@ jobs:
           role-duration-seconds: 900
       - name: Run download data script
         run: |
-          python3 analytics/download_data_logs.py | tee download_data.csv
+          python3 analytics/download_data_logs.py
