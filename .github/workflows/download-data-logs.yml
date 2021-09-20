@@ -1,4 +1,4 @@
-name: "Extract download data logs"
+name: "Extract data download logs"
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   #  - cron: "0 0 * * 1"
 
 jobs:
-  extract download data:
+  aggregate-metrics:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
