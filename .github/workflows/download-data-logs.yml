@@ -1,9 +1,9 @@
 name: "Extract download data logs"
 
-on:
-  push:
-    branches:
-      - ainfeld
+#on:
+#  push:
+#    branches:
+#      - ainfeld
   #schedule:
   #  - cron: "0 0 * * 1"
 

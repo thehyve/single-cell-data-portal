@@ -1,0 +1,12 @@
+name: "Extract download data logs"
+
+on:
+  push:
+    branches:
+      - ainfeld
+  #schedule:
+  #  - cron: "0 0 * * 1"
+
+jobs:
+  extract download data:
+    runs-on: ubuntu-latest
