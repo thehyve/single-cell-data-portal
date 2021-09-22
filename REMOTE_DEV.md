@@ -64,4 +64,3 @@ browser. Loading any TFE web page will reauthorize your token, and you can then 
 
 1. Stack name needs to be a valid DNS prefix: starts with a letter, only includes letters, numbers, and dashes, less than 64 characters in length.
 1. Yes, you have access to manipulate your teammates' remote dev stacks. This is intentional, to enable collaboration on features. Please use responsibly.
-
