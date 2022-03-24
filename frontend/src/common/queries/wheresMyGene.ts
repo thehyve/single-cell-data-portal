@@ -1,3 +1,4 @@
+import flatten from "lodash/flatten";
 import { useContext, useMemo } from "react";
 import { useQuery, UseQueryResult } from "react-query";
 import { StateContext } from "src/views/WheresMyGene/common/store";
@@ -11,7 +12,6 @@ import {
 import { API } from "../API";
 import { EMPTY_OBJECT } from "../constants/utils";
 import { DEFAULT_FETCH_OPTIONS, JSON_BODY_FETCH_OPTIONS } from "./common";
-import { CELL_TYPE_ORDER_BY_TISSUE } from "./constants/cellTypeOrderByTissue";
 import { ENTITIES } from "./entities";
 
 interface RawPrimaryFilterDimensionsResponse {
@@ -129,8 +129,8 @@ interface QueryResponse {
   snapshot_id: string;
   term_id_labels: {
     cell_types: {
-      [id: string]: string;
-    }[];
+      [tissueId: string]: { [id: string]: string }[];
+    };
     genes: {
       [id: string]: string;
     }[];
@@ -321,7 +321,7 @@ export function useCellTypesByTissueName(): {
     for (const [tissueId, cellTypesById] of result.entries()) {
       const tissueName = tissuesById[tissueId].name;
 
-      const cellTypeOrder = CELL_TYPE_ORDER_BY_TISSUE[tissueId];
+      const cellTypeOrder = termIdLabels.cellTypeOrderIndexByTissueId[tissueId];
 
       const cellTypes = Array.from(cellTypesById.values());
 
@@ -442,6 +442,9 @@ function transformCellTypeGeneExpressionSummaryData(
 }
 
 interface TermIdLabels {
+  cellTypeOrderIndexByTissueId: {
+    [tissueId: string]: { [cellTypeId: string]: number };
+  };
   cell_types: { [id: string]: string };
   genes: { [id: string]: string };
 }
@@ -456,7 +459,11 @@ export function useTermIdLabels(): {
   return useMemo(() => {
     if (isLoading || !data)
       return {
-        data: { cell_types: EMPTY_OBJECT, genes: EMPTY_OBJECT },
+        data: {
+          cellTypeOrderIndexByTissueId: {},
+          cell_types: EMPTY_OBJECT,
+          genes: EMPTY_OBJECT,
+        },
         isLoading,
       };
 
@@ -464,9 +471,24 @@ export function useTermIdLabels(): {
       term_id_labels: { cell_types, genes },
     } = data;
 
+    const cellTypeOrderIndexByTissueId: TermIdLabels["cellTypeOrderIndexByTissueId"] =
+      {};
+
+    for (const [tissueId, cellTypeOrder] of Object.entries(cell_types)) {
+      const cellTypeOrderIndexById: { [cellTypeId: string]: number } = {};
+
+      cellTypeOrder.forEach((cellTypeIdToName, index) => {
+        const cellTypeId = Object.keys(cellTypeIdToName)[0];
+        cellTypeOrderIndexById[cellTypeId] = index;
+      });
+
+      cellTypeOrderIndexByTissueId[tissueId] = cellTypeOrderIndexById;
+    }
+
     return {
       data: {
-        cell_types: aggregateIdLabels(cell_types),
+        cellTypeOrderIndexByTissueId,
+        cell_types: aggregateIdLabels(flatten(Object.values(cell_types))),
         genes: aggregateIdLabels(genes),
       },
       isLoading: false,
