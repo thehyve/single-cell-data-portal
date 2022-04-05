@@ -227,22 +227,22 @@ export default memo(function Chart({
       {
         dataRows: [
           {
-            label: "Expressing Cells",
+            label: "Expressed in Cells",
             value: ((dataPoint?.percentage || 0) * 100).toFixed(2) + "%",
           },
           {
-            label: "Relative Expressions",
+            label: "Gene Expression",
             value: (dataPoint?.meanExpression || 0).toFixed(2),
           },
           {
-            label: "Scaled Relative Expressions",
+            label: "Gene Expression, Scaled",
             value: (dataPoint?.scaledMeanExpression || 0).toFixed(2),
           },
         ],
       },
       {
         dataRows: [
-          { label: "Cell Type", value: cellType.name },
+          { label: "Cell Name", value: cellType.name },
           { label: "Tissue Composition", value: "" },
         ],
       },
