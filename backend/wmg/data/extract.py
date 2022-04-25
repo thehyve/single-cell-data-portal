@@ -41,15 +41,14 @@ def get_dataset_s3_uris():
             .all()
         )
         for dataset_id, assays in published_dataset_non_null_assays:
-            if any(assay["ontology_term_id"] in included_assay_ontologies for assay in assays):
                 dataset_ids.append(dataset_id)
 
         s3_uris = DatasetAsset.s3_uris_for_datasets(session, dataset_ids, DatasetArtifactFileType.H5AD)
-    return s3_uris
+    return dataset_ids
 
 
 def copy_datasets_to_instance(s3_uris, dataset_directory):
     """Copy given list of s3 uris to the provided path"""
     for dataset in s3_uris:
-        copy_command = ["aws", "s3", "cp", s3_uris[dataset], f"./{dataset_directory}/{dataset}/local.h5ad"]
+        copy_command = ["aws", "s3", "sync", s3_uris[dataset], f"./{dataset_directory}/{dataset}.cxg"]
         subprocess.run(copy_command)
