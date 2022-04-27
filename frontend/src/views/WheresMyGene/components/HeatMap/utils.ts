@@ -17,7 +17,7 @@ import {
 
 export const MAX_FIRST_PART_LENGTH_PX = 16;
 export const X_AXIS_CHART_HEIGHT_PX = 80;
-export const Y_AXIS_CHART_WIDTH_PX = 300;
+export const Y_AXIS_CHART_WIDTH_PX = 380;
 
 const Y_AXIS_BOTTOM_PADDING = "10px";
 
@@ -166,8 +166,7 @@ export function createXAxisOptions({
     ...COMMON_OPTIONS,
     grid: {
       bottom: "0",
-      left: "300px",
-      top: "300px",
+      left: Y_AXIS_CHART_WIDTH_PX + "px",
     },
     series: [
       {

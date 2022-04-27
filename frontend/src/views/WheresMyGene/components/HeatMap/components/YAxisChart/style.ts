@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { X_AXIS_CHART_HEIGHT_PX, Y_AXIS_CHART_WIDTH_PX } from "../../utils";
 
-const Y_AXIS_TISSUE_WIDTH_PX = 30;
+const Y_AXIS_TISSUE_WIDTH_PX = 110;
 
 export const Wrapper = styled.div`
   display: flex;
@@ -46,3 +46,7 @@ function yAxisHeight({ height }: { height: number }) {
     height: ${height - X_AXIS_CHART_HEIGHT_PX}px;
   `;
 }
+
+export const HierarchyLabel = styled.div`
+  background-color: pink;
+`;
