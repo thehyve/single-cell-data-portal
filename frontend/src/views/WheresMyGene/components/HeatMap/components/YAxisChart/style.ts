@@ -15,10 +15,12 @@ const TISSUE_BORDER_WIDTH_PX = 5;
 export const TissueWrapper = styled.div`
   ${yAxisHeight}
 
+  display: flex;
   background-color: white;
   border-right: ${TISSUE_BORDER_WIDTH_PX}px solid black;
   width: ${Y_AXIS_TISSUE_WIDTH_PX}px;
   padding-left: ${TISSUE_BORDER_WIDTH_PX}px;
+  position: relative;
 `;
 
 export const TissueName = styled.div`
@@ -27,6 +29,7 @@ export const TissueName = styled.div`
   transform: rotate(180deg);
   font-size: 12px;
   font-weight: bold;
+  text-align: center;
 `;
 
 export const Container = styled.div`
@@ -47,6 +50,20 @@ function yAxisHeight({ height }: { height: number }) {
   `;
 }
 
+// GET THE F VALUE
+// GET THE F VALUE
+// GET THE F VALUE
+// GET THE F VALUE
+// temp1.transform.baseVal[0].matrix.f
+
+export const HierarchyWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
 export const HierarchyLabel = styled.div`
   background-color: pink;
+  width: 25px;
+  height: 100px;
 `;

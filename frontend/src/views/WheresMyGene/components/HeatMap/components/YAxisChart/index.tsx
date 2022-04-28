@@ -15,6 +15,8 @@ import {
 import ReplaySVG from "./icons/replay.svg";
 import {
   Container,
+  HierarchyLabel,
+  HierarchyWrapper,
   ResetImageWrapper,
   TissueName,
   TissueWrapper,
@@ -118,6 +120,10 @@ export default memo(function YAxisChart({
     <Wrapper>
       <TissueWrapper height={heatmapHeight}>
         <TissueName>{capitalize(tissue)}</TissueName>
+        <HierarchyWrapper>
+          <HierarchyLabel />
+          <HierarchyLabel />
+        </HierarchyWrapper>
         {hasDeletedCellTypes && (
           <ResetImageWrapper onClick={() => handleResetTissue(tissue)}>
             <Image
