@@ -44,11 +44,13 @@ export default memo(function YAxisChart({
     useDeleteGenesAndCellTypes();
 
   const [yAxisChart, setYAxisChart] = useState<echarts.ECharts | null>(null);
-  const yAxisRef = useRef(null);
+  const yAxisRef = useRef<HTMLDivElement>(null);
 
   const [heatmapHeight, setHeatmapHeight] = useState(
     getHeatmapHeight(cellTypes)
   );
+
+  const textLabelGap = useRef<number | null>(null);
 
   // Initialize charts
   useEffect(() => {
@@ -65,8 +67,32 @@ export default memo(function YAxisChart({
       useDirtyRect: true,
     });
 
+    yAxisChart.on("finished", () => {
+      const { current: currentYAxisChart } = yAxisRef;
+
+      if (!currentYAxisChart) return;
+
+      const gNode = currentYAxisChart.querySelectorAll("g")[1];
+
+      const firstText = gNode.querySelector<SVGTextElement>(":nth-child(1)");
+      const secondText = gNode.querySelector<SVGTextElement>(":nth-child(2)");
+
+      if (!firstText || !secondText) {
+        textLabelGap.current = null;
+        return;
+      }
+
+      const gap =
+        firstText?.transform.baseVal[0].matrix.f -
+        secondText?.transform.baseVal[0].matrix.f;
+
+      if (gap === textLabelGap.current) return;
+
+      textLabelGap.current = gap;
+    });
+
     setYAxisChart(yAxisChart);
-  }, [isChartInitialized]);
+  }, [isChartInitialized, textLabelGap]);
 
   // Update heatmap size
   useEffect(() => {
@@ -121,8 +147,30 @@ export default memo(function YAxisChart({
       <TissueWrapper height={heatmapHeight}>
         <TissueName>{capitalize(tissue)}</TissueName>
         <HierarchyWrapper>
-          <HierarchyLabel />
-          <HierarchyLabel />
+          <HierarchyLabel
+            height={getHierarchyLabelHeight({
+              containerHeight: heatmapHeight,
+              gap: textLabelGap.current,
+              index: 0,
+              labelCount: cellTypes.length,
+            })}
+          />
+          <HierarchyLabel
+            height={getHierarchyLabelHeight({
+              containerHeight: heatmapHeight,
+              gap: textLabelGap.current,
+              index: 1,
+              labelCount: cellTypes.length,
+            })}
+          />
+          <HierarchyLabel
+            height={getHierarchyLabelHeight({
+              containerHeight: heatmapHeight,
+              gap: textLabelGap.current,
+              index: 2,
+              labelCount: cellTypes.length,
+            })}
+          />
         </HierarchyWrapper>
         {hasDeletedCellTypes && (
           <ResetImageWrapper onClick={() => handleResetTissue(tissue)}>
@@ -148,4 +196,27 @@ export default memo(function YAxisChart({
 
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+const TEXT_HEIGHT_PX = 14;
+
+function getHierarchyLabelHeight({
+  index,
+  gap,
+  containerHeight,
+  labelCount,
+}: {
+  index: number;
+  gap: number | null;
+  containerHeight: number;
+  labelCount: number;
+}): number {
+  if (labelCount === 0 || !gap) return 0;
+  if (labelCount === 1) return containerHeight;
+
+  if (index === 0 || index === 2) {
+    return TEXT_HEIGHT_PX + gap;
+  }
+
+  return (TEXT_HEIGHT_PX + gap) * (labelCount - 2);
 }

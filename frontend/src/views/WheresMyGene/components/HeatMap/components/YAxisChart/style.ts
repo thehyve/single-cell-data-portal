@@ -65,5 +65,8 @@ export const HierarchyWrapper = styled.div`
 export const HierarchyLabel = styled.div`
   background-color: pink;
   width: 25px;
-  height: 100px;
+
+  ${({ height }: { height: number }) => `
+    height: ${height}px;
+  `}
 `;
