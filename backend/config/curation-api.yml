@@ -385,6 +385,7 @@ paths:
 
         * session_token
 
+
         After retrieving these credentials, you can proceed with uploading your datafile. Refer to the `/for_curators`
         directory in the single-cell-data-portal Github repository for notebooks with sample credential-retrieval and
         upload code.
