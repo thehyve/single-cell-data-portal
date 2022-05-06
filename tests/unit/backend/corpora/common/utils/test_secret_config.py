@@ -57,17 +57,17 @@ class TestSecretConfig(unittest.TestCase):
                 self.assertEqual("secret1_from_cloud", config.secret1)
 
     def test_refresh_aws(self):
-        with ExistingAwsSecretTestFixture(
-            secret_name=self.secret_name, secret_value='{"secret1":"secret1_from_cloud"}'
-        ) as aws_secret:
-            with EnvironmentSetup({"CONFIG_SOURCE": None}):
-                config = BogoComponentConfig(deployment=self.deployment_env, source="aws")
-                config.refresh_interval = 2
-                self.assertEqual("secret1_from_cloud", config.secret1)
-                aws_secret.value = '{"secret1":"refreshed_secret"}'
-                self.assertEqual("secret1_from_cloud", config.secret1)
-                time.sleep(3)
-                self.assertEqual("refreshed_secret", config.secret1)
+        secret_value = '{"secret1":"original_secret"}'
+        secret = self.secrets_mgr.create_secret(Name=self.secret_name, SecretString=secret_value)
+        self.addCleanup(self.secrets_mgr.delete_secret, SecretId=secret["Name"], ForceDeleteWithoutRecovery=True)
+        with EnvironmentSetup({"CONFIG_SOURCE": None}):
+            config = BogoComponentConfig(deployment=self.deployment_env, source="aws")
+            config.refresh_interval = 2
+            self.assertEqual("original_secret", config.secret1)
+            aws_secret = AwsSecret(self.secret_name)
+            aws_secret.update('{"secret1":"refreshed_secret"}')
+            time.sleep(3)
+            self.assertEqual("refreshed_secret", config.secret1)
 
     def test_custom_secret_name(self):
         custom_secret_name = f"corpora/bogo_component/{self.deployment_env}/custom-secret-name"

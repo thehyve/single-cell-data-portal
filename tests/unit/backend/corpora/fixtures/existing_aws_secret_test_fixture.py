@@ -19,8 +19,8 @@ class ExistingAwsSecretTestFixture:
     SECRET_ID_TEMPLATE = "corpora/cicd/test/secrets/{}"
     EXISTING_SECRET_DEFAULT_VALUE = '{"top":"secret"}'
 
-    def __init__(self, secret_name=None, secret_value=None):
-        self.secrets_mgr = boto3.client("secretsmanager", endpoint_url=os.getenv("BOTO_ENDPOINT_URL") or None)
+    def __init__(self, secret_name=None, secret_value=None, secrets_mgr=None):
+        self.secrets_mgr = secrets_mgr if secrets_mgr else boto3.client("secretsmanager", endpoint_url=os.getenv("BOTO_ENDPOINT_URL") or None)
         self.name = secret_name or self.SECRET_ID_TEMPLATE.format(uuid.uuid4())
         self._value = secret_value or self.EXISTING_SECRET_DEFAULT_VALUE
         self._secret = None
@@ -38,10 +38,6 @@ class ExistingAwsSecretTestFixture:
     @property
     def value(self):
         return self._value
-
-    @value.setter
-    def value(self, val):
-        self._value = val
 
     @property
     def arn(self):

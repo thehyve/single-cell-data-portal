@@ -106,22 +106,20 @@ class SecretConfig:
     def config_is_loaded(self):
         return self.config is not None
 
-    _last_update = None
+    _last_aws_secret_update = 0
 
     def load_from_aws(self):
         secret_path = f"corpora/{self._component_name}/{self._deployment}/{self._secret_name}"
         secret = AwsSecret(secret_path)
         logger.debug(f"reading config for aws secret {secret_path}")
-        current = secret.secret_metadata["LastChangedDate"]
-
-        if not self.__class__._last_update:
-            # set the intial value of last_update
-            self.__class__._last_update = current
+        if self.refresh_interval:
+            current = secret.secret_metadata["LastChangedDate"]
+            if current != self.__class__._last_aws_secret_update:
+                # check if the secret has been updated since the last time we checked
+                self.__class__._last_aws_secret_update = current
+                self.from_json(secret.value)
+        else:
             self.from_json(secret.value)
-        elif current > self.__class__._last_update:
-            # check if the secret has been updated since the last time we checked
-            self.from_json(secret.value)
-        # else do not update the secret
 
     def load_from_file(self, config_file_path):
         logger.debug(f"reading config from file {config_file_path}")
