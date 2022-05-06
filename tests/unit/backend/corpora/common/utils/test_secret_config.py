@@ -1,3 +1,4 @@
+import time
 import unittest
 import uuid
 import os
@@ -6,7 +7,7 @@ from unittest.mock import PropertyMock, patch
 
 
 import boto3
-
+from moto import mock_secretsmanager
 from tests.unit.backend.corpora.fixtures.environment_setup import EnvironmentSetup, fixture_file_path
 from tests.unit.backend.corpora.fixtures.existing_aws_secret_test_fixture import ExistingAwsSecretTestFixture
 
@@ -19,13 +20,13 @@ class BogoComponentConfig(SecretConfig):
         super(BogoComponentConfig, self).__init__("bogo_component", **kwargs)
 
 
+@mock_secretsmanager
 class TestSecretConfig(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
         # AwsSecret.debug_logging = True
         # To reduce eventual consistency issues, get everyone using the same Secrets Manager session
-        cls.secrets_mgr = boto3.client("secretsmanager", endpoint_url=os.getenv("BOTO_ENDPOINT_URL") or None)
+        cls.secrets_mgr = boto3.client("secretsmanager")
         cls.patcher = patch("backend.corpora.common.utils.aws.boto3.client")
         boto3_client = cls.patcher.start()
         boto3_client.return_value = cls.secrets_mgr
@@ -54,6 +55,19 @@ class TestSecretConfig(unittest.TestCase):
             with EnvironmentSetup({"CONFIG_SOURCE": None}):
                 config = BogoComponentConfig(deployment=self.deployment_env, source="aws")
                 self.assertEqual("secret1_from_cloud", config.secret1)
+
+    def test_refresh_aws(self):
+        with ExistingAwsSecretTestFixture(
+            secret_name=self.secret_name, secret_value='{"secret1":"secret1_from_cloud"}'
+        ) as aws_secret:
+            with EnvironmentSetup({"CONFIG_SOURCE": None}):
+                config = BogoComponentConfig(deployment=self.deployment_env, source="aws")
+                config.refresh_interval = 2
+                self.assertEqual("secret1_from_cloud", config.secret1)
+                aws_secret.value = '{"secret1":"refreshed_secret"}'
+                self.assertEqual("secret1_from_cloud", config.secret1)
+                time.sleep(3)
+                self.assertEqual("refreshed_secret", config.secret1)
 
     def test_custom_secret_name(self):
         custom_secret_name = f"corpora/bogo_component/{self.deployment_env}/custom-secret-name"

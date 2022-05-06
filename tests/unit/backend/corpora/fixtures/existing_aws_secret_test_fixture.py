@@ -39,6 +39,10 @@ class ExistingAwsSecretTestFixture:
     def value(self):
         return self._value
 
+    @value.setter
+    def value(self, val):
+        self._value = val
+
     @property
     def arn(self):
         return self._secret["ARN"]

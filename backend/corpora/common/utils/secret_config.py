@@ -1,7 +1,11 @@
 import json
 import os
+import time
+import logging
 
 from .aws import AwsSecret
+
+logger = logging.getLogger(__name__)
 
 
 class SecretConfig:
@@ -25,7 +29,8 @@ class SecretConfig:
     share that data.
     """
 
-    environ_source = "CONFIG_SOURCE"
+    environ_source: str = "CONFIG_SOURCE"
+    refresh_interval: int = 0
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, "_config"):
@@ -48,9 +53,15 @@ class SecretConfig:
     def config(self):
         return self.__class__._config
 
+    _next_refresh = 0
+
     def __getattr__(self, name):
         # Environment variables intentionally override config file.
         if not self.config_is_loaded():
+            logging.debug(f"initial loading of config {self._component_name}, {self._deployment}, {self._secret_name}")
+            self.load()
+        elif self.refresh_interval and int(time.time()) > self.__class__._next_refresh:
+            logging.debug(f"refreshing of config {self._component_name}, {self._deployment}, {self._secret_name}")
             self.load()
         return (
             self.value_from_env(name)
@@ -88,17 +99,32 @@ class SecretConfig:
         else:
             self.load_from_file(self._source)
         self.update_defaults()
+        if self.refresh_interval:
+            self.__class__._next_refresh = int(time.time()) + self.refresh_interval  # set the initial refresh value
         return True  # so we can be used in 'and' statements
 
     def config_is_loaded(self):
         return self.config is not None
 
+    _last_update = None
+
     def load_from_aws(self):
         secret_path = f"corpora/{self._component_name}/{self._deployment}/{self._secret_name}"
         secret = AwsSecret(secret_path)
-        self.from_json(secret.value)
+        logger.debug(f"reading config for aws secret {secret_path}")
+        current = secret.secret_metadata["LastChangedDate"]
+
+        if not self.__class__._last_update:
+            # set the intial value of last_update
+            self.__class__._last_update = current
+            self.from_json(secret.value)
+        elif current > self.__class__._last_update:
+            # check if the secret has been updated since the last time we checked
+            self.from_json(secret.value)
+        # else do not update the secret
 
     def load_from_file(self, config_file_path):
+        logger.debug(f"reading config from file {config_file_path}")
         with open(config_file_path, "r") as config_fp:
             self.from_json(config_fp.read())
 
