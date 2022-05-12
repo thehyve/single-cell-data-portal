@@ -1,5 +1,8 @@
 const configs = require(__dirname + "/src/configs/configs.js");
 const nodeEnv = require(__dirname + "/src/common/constants/nodeEnv.js");
+const withMDX = require("@next/mdx")({
+  extension: /\.mdx?$/,
+});
 
 const { createSecureHeaders } = require("next-secure-headers");
 
@@ -9,7 +12,8 @@ const PLAUSIBLE_URL = "https://plausible.io";
 
 const SCRIPT_SRC = ["'self'", PLAUSIBLE_URL];
 
-module.exports = {
+module.exports = withMDX({
+  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   eslint: { dirs: ["doc-site", "pages", "components", "lib"] },
   async generateBuildId() {
     // Return null to allow next.js to fallback to default behavior
@@ -65,4 +69,4 @@ module.exports = {
       },
     ];
   },
-};
+});
