@@ -50,11 +50,6 @@ const LandingHeader: FC = () => {
   return (
     <MobileNavWrapper>
       <MobileHomeLink>
-        {/* <Link href={ROUTES.HOMEPAGE} passHref>
-          <a>
-            <Image src={CGLogo} alt="logo" width="24" height="24" />
-          </a>
-        </Link> */}
         <HomepageLink />
       </MobileHomeLink>
       <MobileMenuButton onClick={() => mobileNavHandler(mobileMenuOpen)}>
@@ -74,22 +69,22 @@ const LandingHeader: FC = () => {
               </DesktopHomeLink>
               <Nav>
                 <LinkWrapper>
-                  <Link href={ROUTES.HOMEPAGE} passHref>
-                    <AnchorButton
-                      active={isRouteActive(pathname, ROUTES.HOMEPAGE)}
-                      href="passHref"
-                      minimal
-                      text="Datasets"
-                    />
-                  </Link>
-                </LinkWrapper>
-                <LinkWrapper>
                   <Link href={ROUTES.COLLECTIONS} passHref>
                     <AnchorButton
                       active={isRouteActive(pathname, ROUTES.COLLECTIONS)}
                       href="passHref"
                       minimal
                       text="Collections"
+                    />
+                  </Link>
+                </LinkWrapper>
+                <LinkWrapper>
+                  <Link href={ROUTES.DATASETS} passHref>
+                    <AnchorButton
+                      active={isRouteActive(pathname, ROUTES.DATASETS)}
+                      href="passHref"
+                      minimal
+                      text="Datasets"
                     />
                   </Link>
                 </LinkWrapper>
@@ -108,8 +103,7 @@ const LandingHeader: FC = () => {
               </Nav>
             </Left>
             <Right>
-              {/* CHANGE TO "/" ON PROD */}
-              {pathname === "/landing-page" && (
+              {pathname === ROUTES.HOMEPAGE && (
                 <a
                   href="https://chanzuckerberg.com/careers/career-opportunities/?team=data,design,engineering,product,technical-program-management&initiative=science&gh_src=20d9f28d1us"
                   target="_blank"
