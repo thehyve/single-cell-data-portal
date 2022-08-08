@@ -26,6 +26,7 @@ def build_in_mem_cube(
         np.empty((total_vals,), dtype=object),
         np.empty((total_vals,), dtype=object),
         np.empty((total_vals,), dtype=object),
+        np.empty((total_vals,), dtype=object),
     ]
     vals = {
         "sum": np.empty((total_vals,)),
