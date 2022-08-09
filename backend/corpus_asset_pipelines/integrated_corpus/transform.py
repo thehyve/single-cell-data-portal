@@ -51,8 +51,8 @@ def get_high_level_tissue(obs: DataFrame):
 
         if "lung" in obs["tissue"][i]:
             if "UBERON:0002048" not in obs["tissue_ontology_term_id"].cat.categories:
-                obs["tissue_ontology_term_id"].cat.add_categories("UBERON:0002048")
-                obs["tissue"].cat.add_categories("lung")
+                obs["tissue_ontology_term_id"].cat.add_categories("UBERON:0002048", inplace=True)
+                obs["tissue"].cat.add_categories("lung", inplace=True)
 
             obs["tissue_ontology_term_id"][i] = "UBERON:0002048"
             obs["tissue"][i] = "lung"
